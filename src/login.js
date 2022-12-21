@@ -14,7 +14,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const { currentUser } = useContext(AuthContext);
+  const { dispatch, currentUser } = useContext(AuthContext);
 
   console.log(currentUser);
 
@@ -22,6 +22,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
+
+      dispatch({ type: "LOGIN", payload: res.user });
 
       await setDoc(doc(db, "users", res.user.uid), {
         email: email,
@@ -33,6 +35,7 @@ const Login = () => {
     }
   };
 
+  // console.log(currentUser.uid);
   useEffect(() => {
     const uploadFile = () => {
       const name = `userID/${currentUser.uid}/${img.name}`;
