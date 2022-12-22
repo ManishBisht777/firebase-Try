@@ -4,6 +4,7 @@ import Login from "./login";
 import Home from "./home";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
+import Website from "./website";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -24,6 +25,7 @@ function App() {
           }
         />
         <Route path="/login" element={<Login />} />
+        <Route path="/build" element={<Website />} />
       </Routes>
     </div>
   );

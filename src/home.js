@@ -1,14 +1,41 @@
 import { doc, setDoc } from "firebase/firestore";
 import { listAll, ref, getDownloadURL } from "firebase/storage";
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { db, storage } from "./firebase";
+
+import { toPng } from "html-to-image";
+
 const Home = () => {
   const [data, setData] = useState("");
   const { currentUser } = useContext(AuthContext);
   const [imgList, setImgList] = useState([]);
   const [load, setLoad] = useState(false);
+
+  const downloadRef = useRef();
+
+  const downloadImage = useCallback(() => {
+    if (downloadRef.current === null) {
+      return;
+    }
+    toPng(downloadRef.current, { cacheBust: true })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = "my-image-name.png";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [downloadRef]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +81,7 @@ const Home = () => {
   console.log(imgList);
 
   return (
-    <div>
+    <div id="downloadImg">
       <Link to="/login">Login plx</Link>
 
       <form action="" onSubmit={(e) => handleSubmit(e)}>
@@ -66,12 +93,15 @@ const Home = () => {
         <button type="submit">submit plx</button>
       </form>
 
-      {load &&
-        imgList.map((image, index) => {
-          console.log(image);
+      <div ref={downloadRef}>
+        {load &&
+          imgList.map((image, index) => {
+            console.log(image);
 
-          return <img src={image} key={index} alt="" />;
-        })}
+            return <img src={image} key={index} alt="" />;
+          })}
+      </div>
+      <button onClick={() => downloadImage()}>Download Image</button>
     </div>
   );
 };
